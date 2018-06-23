@@ -59,16 +59,34 @@ class BellyButton(db.names):
 
 @app.route('/otu')
 
-
+    results = session.query(OTU.lowest_taxonomic_unit_found).all()
+    otu_list = list(np.ravel(results))
+    return jsonify(otu_list)
 
 @app.route('/metadata/<sample>')
-
+def sample_metadata(sample):
+    sel = [Samples_Metadata.SAMPLEID, Samples_Metadata.ETHNICITY,
+           Samples_Metadata.GENDER, Samples_Metadata.AGE,
+           Samples_Metadata.LOCATION, Samples_Metadata.BBTYPE]
 
 
 @app.route('/samples/<sample>')
+    stmt = session.query(Samples).statement
+    df = pd.read_sql_query(stmt, session.bind)
+    if sample not in df.columns:
+        return jsonify(f"Error! Sample: {sample} Not Found!"), 400
 
+
+    data = [{
+        "otu_ids": df[sample].index.values.tolist(),
+        "sample_values": df[sample].values.tolist()
+    }]
+    return jsonify(data)
 @app.before_first_request
 def setup():
     # Recreate database each time for demo
     db.drop_all()
     db.create_all()
+
+if __name__ == "__main__":
+    app.run(debug=True)
