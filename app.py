@@ -1,6 +1,6 @@
 # import necessary libraries
 import numpy as np
-
+import os
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func
@@ -20,14 +20,14 @@ app = Flask(__name__)
 #################################################
 # Database Setup
 #################################################
-dbfile = os.path.joinn('db', 'belly_button_biodiversity.sqlite')
-engine = create_engine(f"sqlite:///{dbfile}")
+db= os.path.join('db', 'belly_button_biodiversity.sqlite')
+engine = create_engine(f"sqlite:///{db}")
 
 Base = automap_base()
 
 Base.prepare(engine, reflect=True)
 
-Samples_Metadata = Base.classes.Samples_Metadata
+Samples_Metadata = Base.classes.samples_metadata
 OTU = Base.classes.otu
 Samples = Base.classes.samples
 
@@ -44,7 +44,7 @@ def home():
 
 # List of Names
 @app.route('/names')
-class BellyButton(db.Names):
+class BellyButton(db.names):
     __tablename__ = 'belly_button_biodiversity'
 
     id = db.Column(db.Integer, primary_key=True)
